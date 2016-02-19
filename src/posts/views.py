@@ -11,12 +11,6 @@ def post_create(request):
     print form.cleaned_data.get("title")
     instance.save()
 
-
-  # if request.method == "POST":
-  #   print request.POST.get("content")
-  #   print request.POST.get("title")
-  #   #Post.objects.create(title=title)
-
   context = {
     "form": form,
   }
@@ -24,7 +18,6 @@ def post_create(request):
   return render(request, "post_form.html", context)
 
 def post_detail(request, id):
-  #instance = Post.objects.get(id=10)
   instance = get_object_or_404(Post, id=id);
   context = {
     "title": instance.title,
@@ -45,7 +38,7 @@ def post_list(request):
     }
 
   return render(request, "index.html", context)
-  # return HttpResponse("<h1>List</h1>")
+
 
 def post_update(request, id=None):
   instance = get_object_or_404(Post, id=id);

@@ -17,5 +17,4 @@ urlpatterns = [
     url(r'^delete$', post_delete),
 
 
-    #ulr(r'^posts/$', "<appname>.views.<function_name>"),
 ]
