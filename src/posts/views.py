@@ -1,63 +1,72 @@
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
+from django.contrib import messages
 from .forms import PostForm
 from .models import Post
 
 
 def post_create(request):
-  form = PostForm(request.POST or None)
-  if form.is_valid():
-    instance = form.save(commit=False)
-    print form.cleaned_data.get("title")
-    instance.save()
+    form = PostForm(request.POST or None)
+    if form.is_valid():
+        instance = form.save(commit=False)
+        instance.save()
+        messages.success(request, "Successfully Created")
+        return HttpResponseRedirect(instance.get_absolute_url())
+    else:
+        messages.error(request, "Not Successfully Created")
 
-  context = {
+    context = {
     "form": form,
-  }
+    }
 
-  return render(request, "post_form.html", context)
+    return render(request, "post_form.html", context)
 
 def post_detail(request, id):
-  instance = get_object_or_404(Post, id=id);
-  context = {
-    "title": instance.title,
-    "instance": instance
-  }
-  return render(request, "post_form.html", context)
+    instance = get_object_or_404(Post, id=id);
+    context = {
+        "title": instance.title,
+        "instance": instance
+    }
+    return render(request, "post_detail.html", context)
 
 def post_list(request):
-  queryset = Post.objects.all()
-  if request.user.is_authenticated():
-    context = {
-      "object_list": queryset,
-      "title": "My User List"
-    }
-  else:
-    context = {
-      "title": "List"
-    }
+    queryset = Post.objects.all()
+    if request.user.is_authenticated():
+        context = {
+            "object_list": queryset,
+            "title": "My User List"
+        }
+    else:
+        context = {
+            "title": "List"
+        }
 
-  return render(request, "index.html", context)
+    return render(request, "index.html", context)
 
 
 def post_update(request, id=None):
-  instance = get_object_or_404(Post, id=id);
-  form = PostForm(request.POST or None)
+    instance = get_object_or_404(Post, id=id);
+    form = PostForm(request.POST or None, instance = instance)
 
-  if form.is_valid():
-    instance = form.save(commit=False)
+    if form.is_valid():
+        instance = form.save(commit=False)
+        instance.save()
+        messages.success(request, "Successfully Updated", extra_tags='some-tag')
+        return HttpResponseRedirect(instance.get_absolute_url())
 
-    instance.save()
-  context = {
-    "title": instance.title,
-    "instance": instance,
-    "form": form,
-  }
-  return render(request, "post_form.html", context)
+    context = {
+        "title": instance.title,
 
-def post_delete(request):
-  context = {
-    "title": "Delete"
-  }
-  return render(request, "index.html", context)
+        "instance": instance,
+        
+        "form": form,
+    }
+    return render(request, "post_form.html", context)
+
+def post_delete(request, id=None):
+    instance = get_object_or_404(Post, id=id);
+    context = {
+        "title": "Delete"
+    }
+    return render(request, "index.html", context)
 
